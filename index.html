@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>Karosserie Walker – Online-Anfrage</title>
+  <style>
+    :root {
+      --bg: #000000;
+      --card: #111111;
+      --border: #222222;
+      --text: #ffffff;
+      --muted: #a1a1a1;
+      --accent: #ff7a00;
+    }
+
+    * { box-sizing: border-box; -webkit-font-smoothing: antialiased; }
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+      padding: 15px;
+    }
+
+    .container { width: 100%; max-width: 500px; }
+
+    .header {
+      text-align: center;
+      padding: 20px 0;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 25px;
+    }
+    .header h1 { margin: 0; font-size: 24px; text-transform: uppercase; letter-spacing: 2px; color: #ffffff; }
+    .header h1 span { color: var(--accent); }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    .card h2 { margin-top: 0; font-size: 18px; margin-bottom: 5px; border-left: 3px solid var(--accent); padding-left: 10px; }
+    .card-subtitle { font-size: 13px; color: var(--muted); margin-bottom: 15px; line-height: 1.4; display: block; margin-top: 5px; }
+
+    label { display: block; font-size: 12px; font-weight: 600; color: var(--muted); margin-bottom: 8px; margin-top: 15px; }
+
+    input, select, textarea {
+      width: 100%; background: #000; border: 1px solid var(--border);
+      color: #fff; padding: 12px 15px; border-radius: 12px; font-size: 15px; outline: none;
+      appearance: none; display: block; height: 48px; font-family: inherit;
+    }
+
+    input[type="date"] {
+      position: relative;
+    }
+    input[type="date"]::before {
+      content: "Bitte wählen...";
+      color: rgba(255, 255, 255, 0.7);
+      position: absolute;
+      left: 15px;
+      width: 80%;
+      background: #000;
+    }
+    input[type="date"]:focus::before,
+    input[type="date"]:valid::before {
+      content: "";
+      display: none;
+    }
+    input[type="date"]::-webkit-calendar-picker-indicator {
+      filter: invert(1);
+      opacity: 0.5;
+      z-index: 5;
+    }
+
+    textarea { height: auto; min-height: 100px; padding-top: 12px; }
+    input::placeholder { color: #fff; opacity: 0.7; }
+
+    .file-input-wrapper { position: relative; margin-top: 10px; overflow: hidden; border-radius: 12px; }
+    input[type="file"] { position: absolute; left: 0; top: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; z-index: 2; }
+    .file-custom-btn { background: #000; border: 1px dashed var(--accent); color: #fff; padding: 14px; border-radius: 12px; text-align: center; font-size: 14px; display: block; position: relative; z-index: 1; }
+
+    .privacy-row { display: flex; align-items: flex-start; gap: 12px; margin-top: 20px; }
+    .privacy-row input[type="checkbox"] { width: 20px; height: 20px; min-width: 20px; accent-color: var(--accent); cursor: pointer; appearance: checkbox; margin-top: 2px; }
+    .privacy-text { font-size: 11px; color: var(--muted); line-height: 1.5; }
+
+    input:focus, select:focus, textarea:focus { border-color: var(--accent); }
+
+    .main-selection { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+    .main-selection label { margin: 0; padding: 16px; background: #000; border: 1px solid var(--border); border-radius: 12px; text-align: center; cursor: pointer; font-size: 14px; font-weight: 700; color: var(--text); display: block; }
+
+    .logic-radio { display: none; }
+    #type-beratung:checked ~ .container .select-beratung { border-color: var(--accent); background: rgba(255,122,0,0.15); color: var(--accent); }
+    #type-schaden:checked ~ .container .select-schaden { border-color: var(--accent); background: rgba(255,122,0,0.15); color: var(--accent); }
+
+    .schaden-details, .beratung-details { display: none; }
+    #type-schaden:checked ~ .container .schaden-details { display: block; }
+    #type-beratung:checked ~ .container .beratung-details { display: block; }
+
+    .btn-submit { width: 100%; background: var(--accent); color: #000; border: none; padding: 18px; border-radius: 15px; font-size: 16px; font-weight: 800; text-transform: uppercase; cursor: pointer; margin-top: 10px; }
+  </style>
+</head>
+<body>
+
+<input type="radio" name="design_type" id="type-beratung" class="logic-radio" checked>
+<input type="radio" name="design_type" id="type-schaden" class="logic-radio">
+
+<div class="container">
+  <div class="header">
+    <h1>Karosserie <span>Walker</span></h1>
+  </div>
+
+  <form action="https://formspree.io/f/mbdlvvaz" method="POST" enctype="multipart/form-data">
+    <input type="hidden" name="Kategorie" id="hidden-type" value="Termin / Beratung">
+
+    <div class="card">
+      <h2>Was können wir für Sie tun?</h2>
+      <div class="main-selection">
+        <label for="type-beratung" class="select-beratung">Termin / Beratung</label>
+        <label for="type-schaden" class="select-schaden">Schaden melden</label>
+      </div>
+    </div>
+
+    <div class="beratung-details">
+      <div class="card">
+        <h2>Terminwunsch</h2>
+        <label>Datum</label>
+        <input type="date" name="Wunschdatum" required>
+        <label>Uhrzeit</label>
+        <select name="Wunschuhrzeit" required>
+          <option value="">Bitte wählen…</option>
+          <option>Flexibel</option>
+          <option>09:00</option><option>10:00</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="schaden-details">
+      <div class="card">
+        <h2>Schadendetails</h2>
+        <textarea name="Schadenbeschreibung"></textarea>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Kontaktdaten</h2>
+      <label>Vorname</label>
+      <input type="text" name="Vorname" required>
+      <label>Nachname</label>
+      <input type="text" name="Nachname" required>
+      <label>E-Mail</label>
+      <input type="email" name="Email" required>
+      <label>Telefon</label>
+      <input type="tel" name="Telefon" required>
+      <div class="privacy-row">
+        <input type="checkbox" required>
+        <span class="privacy-text">Ich stimme der Datenverarbeitung zu.</span>
+      </div>
+    </div>
+
+    <button class="btn-submit" type="submit">Anfrage senden</button>
+  </form>
+</div>
+
+<script>
+  const hiddenType = document.getElementById("hidden-type");
+  document.getElementById("type-beratung").addEventListener("change",()=>hiddenType.value="Termin / Beratung");
+  document.getElementById("type-schaden").addEventListener("change",()=>hiddenType.value="Schaden melden");
+</script>
+
+</body>
+</html>

@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>Karosserie Walker – Online-Anfrage</title>
+  <style>
+    :root {
+      --bg: #000000;
+      --card: #111111;
+      --border: #222222;
+      --text: #ffffff;
+      --muted: #a1a1a1;
+      --accent: #ff7a00;
+    }
+
+    * { box-sizing: border-box; -webkit-font-smoothing: antialiased; }
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+      padding: 15px;
+    }
+
+    .container { width: 100%; max-width: 500px; }
+
+    .header {
+      text-align: center;
+      padding: 20px 0;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 25px;
+    }
+    .header h1 { margin: 0; font-size: 24px; text-transform: uppercase; letter-spacing: 2px; color: #ffffff; }
+    .header h1 span { color: var(--accent); }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    .card h2 { margin-top: 0; font-size: 18px; margin-bottom: 5px; border-left: 3px solid var(--accent); padding-left: 10px; }
+    .card-subtitle { font-size: 13px; color: var(--muted); margin-bottom: 15px; line-height: 1.4; display: block; margin-top: 5px; }
+
+    label { display: block; font-size: 12px; font-weight: 600; color: var(--muted); margin-bottom: 8px; margin-top: 15px; }
+
+    input, select, textarea {
+      width: 100%; background: #000; border: 1px solid var(--border);
+      color: #fff; padding: 12px 15px; border-radius: 12px; font-size: 15px; outline: none;
+      appearance: none; display: block; height: 48px; font-family: inherit;
+    }
+
+    /* Spezial-Lösung Datum */
+    input[type="date"] { position: relative; }
+    input[type="date"]::before {
+      content: "Bitte wählen...";
+      color: rgba(255, 255, 255, 0.7);
+      position: absolute;
+      left: 15px;
+      width: 80%;
+      background: #000;
+    }
+    input[type="date"]:focus::before,
+    input[type="date"]:valid::before { content: ""; display: none; }
+    input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); opacity: 0.5; z-index: 5; }
+
+    textarea { height: auto; min-height: 100px; padding-top: 12px; }
+    input::placeholder { color: #fff; opacity: 0.7; }
+
+    .file-input-wrapper { position: relative; margin-top: 10px; overflow: hidden; border-radius: 12px; }
+    input[type="file"] { position: absolute; left: 0; top: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; z-index: 2; }
+    .file-custom-btn { background: #000; border: 1px dashed var(--accent); color: #fff; padding: 14px; border-radius: 12px; text-align: center; font-size: 14px; display: block; position: relative; z-index: 1; }
+
+    #preview-container { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 15px; }
+    .preview-wrapper { position: relative; display: inline-block; }
+    .preview-img { width: 70px; height: 70px; object-fit: cover; border-radius: 10px; border: 1px solid var(--border); }
+    .remove-btn { position: absolute; top: -5px; right: -5px; background: var(--accent); color: #000; border: none; border-radius: 50%; width: 20px; height: 20px; font-size: 12px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 5; }
+
+    .privacy-row { display: flex; align-items: flex-start; gap: 12px; margin-top: 20px; }
+    .privacy-row input[type="checkbox"] { width: 20px; height: 20px; min-width: 20px; accent-color: var(--accent); cursor: pointer; appearance: checkbox; margin-top: 2px; }
+    .privacy-text { font-size: 11px; color: var(--muted); line-height: 1.5; }
+    .privacy-text a { color: var(--accent); text-decoration: underline; }
+
+    input:focus, select:focus, textarea:focus { border-color: var(--accent); }
+
+    .main-selection { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+    .main-selection label { margin: 0; padding: 16px; background: #000; border: 1px solid var(--border); border-radius: 12px; text-align: center; cursor: pointer; font-size: 14px; font-weight: 700; color: var(--text); display: block; transition: 0.2s; }
+
+    .logic-radio { display: none; }
+    #type-beratung:checked ~ .container .select-beratung { border-color: var(--accent); background: rgba(255,122,0,0.15); color: var(--accent); }
+    #type-schaden:checked ~ .container .select-schaden { border-color: var(--accent); background: rgba(255,122,0,0.15); color: var(--accent); }
+
+    .schaden-details, .beratung-details { display: none; }
+    #type-schaden:checked ~ .container .schaden-details { display: block; }
+    #type-beratung:checked ~ .container .beratung-details { display: block; }
+
+    .btn-submit { width: 100%; background: var(--accent); color: #000; border: none; padding: 18px; border-radius: 15px; font-size: 16px; font-weight: 800; text-transform: uppercase; cursor: pointer; margin-top: 10px; }
+  </style>
+</head>
+<body>
+
+  <input type="radio" name="design_type" id="type-beratung" class="logic-radio" checked>
+  <input type="radio" name="design_type" id="type-schaden" class="logic-radio">
+
+  <div class="container">
+    <div class="header">
+      <h1>Karosserie <span>Walker</span></h1>
+    </div>
+
+    <form action="https://formspree.io/f/mbdlvvaz" method="POST" enctype="multipart/form-data">
+      
+      <input type="hidden" name="_subject" value="Neue Anfrage Karosserie Walker">
+      <input type="hidden" name="Anfrage_Kategorie" id="hidden-type" value="Termin / Beratung">
+
+      <div class="card">
+        <h2>Was können wir für Sie tun?</h2>
+        <div class="main-selection">
+          <label for="type-beratung" class="select-beratung">Termin / Beratung</label>
+          <label for="type-schaden" class="select-schaden">Schaden melden</label>
+        </div>
+      </div>
+
+      <div class="beratung-details">
+        <div class="card">
+          <h2>Terminwunsch</h2>
+          <span class="card-subtitle">Hinweis: Termine sind nur von Montag bis Freitag möglich.</span>
+          
+          <label>Datum</label>
+          <input type="date" name="Wunschdatum" id="termin-input">
+          
+          <label>Uhrzeit</label>
+          <select name="Uhrzeit">
+            <option value="" disabled selected>Bitte wählen...</option>
+            <option value="Flexibel">Flexibel (nach Absprache)</option>
+            <option>09:00 Uhr</option><option>09:30 Uhr</option>
+            <option>10:00 Uhr</option><option>10:30 Uhr</option>
+            <option>11:00 Uhr</option><option>11:30 Uhr</option>
+            <option>12:00 Uhr</option><option>12:30 Uhr</option>
+            <option>13:00 Uhr</option><option>13:30 Uhr</option>
+            <option>14:00 Uhr</option><option>14:30 Uhr</option>
+            <option>15:00 Uhr</option><option>15:30 Uhr</option>
+            <option>16:00 Uhr</option><option>16:30 Uhr</option>
+            <option>17:00 Uhr</option>
+          </select>
+          <label>Zusatz-Info (optional)</label>
+          <input type="text" name="Zusatz_Info" placeholder="Worum geht es?">
+        </div>
+      </div>
+
+      <div class="schaden-details">
+        <div class="card">
+          <h2>Details zum Schaden</h2>
+          <span class="card-subtitle">Alle Angaben sind freiwillig, helfen uns aber bei einer schnelleren Rückmeldung.</span>
+          <label>Fahrzeugtyp</label>
+          <select name="Fahrzeugtyp">
+            <option value="" disabled selected>Bitte wählen...</option>
+            <option>Sonstiges / Nicht sicher</option>
+            <optgroup label="PKW">
+              <option>Kleinwagen</option><option>Limousine</option><option>Kombi</option>
+              <option>SUV / Geländewagen</option><option>Coupe / Cabriolet</option><option>Van / Minivan</option>
+            </optgroup>
+            <optgroup label="Freizeit">
+              <option>Wohnmobil / Camper</option><option>Wohnwagen</option>
+            </optgroup>
+          </select>
+          <label>Beschreibung & Fotos</label>
+          <textarea name="Schaden_Beschreibung" placeholder="Was ist passiert?"></textarea>
+          <div class="file-input-wrapper">
+            <input type="file" name="Schaden_Fotos" id="file-field" multiple accept="image/*">
+            <span class="file-custom-btn" id="file-label">📸 Fotos hochladen</span>
+          </div>
+          <div id="preview-container"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Kontaktdaten</h2>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+          <div><label>Vorname</label><input type="text" name="Vorname" placeholder="Vorname" required></div>
+          <div><label>Nachname</label><input type="text" name="Nachname" placeholder="Nachname" required></div>
+        </div>
+        <label>E-Mail Adresse</label>
+        <input type="email" name="_replyto" required placeholder="beispiel@mail.de">
+        <label>Telefonnummer</label>
+        <input type="tel" name="Telefonnummer" required placeholder="0171 12345678">
+
+        <div class="privacy-row">
+          <input type="checkbox" name="DSGVO_Zustimmung" id="dsgvo" required>
+          <label for="dsgvo" class="privacy-text">
+            Ich willige ein, dass meine Daten zur Bearbeitung dieser Anfrage gespeichert werden. 
+            Widerruf jederzeit möglich. Infos in der 
+            <a href="https://karosserie-reutlingen.de/datenschutzeklaerung/" target="_blank">Datenschutzerklärung</a>.
+          </label>
+        </div>
+      </div>
+
+      <button type="submit" class="btn-submit">Anfrage jetzt senden</button>
+    </form>
+  </div>
+
+  <script>
+    const hiddenType = document.getElementById('hidden-type');
+    document.getElementById('type-beratung').addEventListener('change', () => { hiddenType.value = "Termin / Beratung"; });
+    document.getElementById('type-schaden').addEventListener('change', () => { hiddenType.value = "Schaden melden"; });
+
+    const dateInput = document.getElementById('termin-input');
+    if (dateInput) {
+      dateInput.setAttribute('min', new Date().toISOString().split('T')[0]);
+    }
+
+    const fileField = document.getElementById('file-field');
+    const previewContainer = document.getElementById('preview-container');
+    const fileLabel = document.getElementById('file-label');
+    let selectedFiles = [];
+
+    fileField.addEventListener('change', function() {
+      const newFiles = Array.from(this.files);
+      selectedFiles = [...selectedFiles, ...newFiles];
+      renderPreviews();
+    });
+
+    function renderPreviews() {
+      previewContainer.innerHTML = '';
+      if (selectedFiles.length > 0) {
+        fileLabel.textContent = selectedFiles.length + " Foto(s) ausgewählt";
+        selectedFiles.forEach((file, index) => {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'preview-wrapper';
+            wrapper.innerHTML = `<img src="${e.target.result}" class="preview-img"><button type="button" class="remove-btn" onclick="removeFile(${index})">✕</button>`;
+            previewContainer.appendChild(wrapper);
+          };
+          reader.readAsDataURL(file);
+        });
+      } else {
+        fileLabel.textContent = "📸 Fotos hochladen";
+      }
+      updateInputFiles();
+    }
+
+    function removeFile(index) {
+      selectedFiles.splice(index, 1);
+      renderPreviews();
+    }
+
+    function updateInputFiles() {
+      const dt = new DataTransfer();
+      selectedFiles.forEach(f => dt.items.add(f));
+      fileField.files = dt.files;
+    }
+  </script>
+</body>
+</html>
